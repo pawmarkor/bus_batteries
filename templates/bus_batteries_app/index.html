@@ -8,7 +8,7 @@
     </tr>
     {% for bus in buses %}
         <tr>
-            <td>{{ bus.id }}</td>
+            <td><a href="{%  url 'bus_batteries_app:edit_bus' bus.id %}">{{ bus.id }}</a></td>
             <td>{{ bus.name }}</td>
             <td>{{ bus.no_of_active_batteries }}</td>
             <td>{{ bus.no_of_all_batteries }}</td>

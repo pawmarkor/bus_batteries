@@ -1,0 +1,41 @@
+<form action="{% url 'bus_batteries_app:edit_bus' id %}" method="post">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td>ID</td>
+            <td>{{ id }}</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td><input type="text" name="name" value="{{ name }}"/></td>
+        </tr>
+    </table>
+    Batteries:
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Number</th>
+            <th>Active</th>
+            <th>Remove</th>
+        </tr>
+        {%  for battery in batteries %}
+            <tr>
+                <td>{{ battery.id }}</td>
+                <td>{{ battery.number }}</td>
+                <td>
+                    {% if battery.active %}
+                        <input type="checkbox" name="battery_{{ battery.id }}_active" checked />
+                    {% else %}
+                        <input type="checkbox" name="battery_{{ battery.id }}_active" />
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="checkbox" name="batteries_to_be_removed" value="{{ battery.id }}" />
+                </td>
+            </tr>
+        {%  endfor %}
+    </table>
+    Add <input type="number" value="0" name="no_of_batteries_to_be_added" /> batteries. <br />
+    <input type="reset" />
+    <input type="submit" value="Save" />
+</form>
