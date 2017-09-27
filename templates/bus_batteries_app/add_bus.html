@@ -1,0 +1,19 @@
+<form action="{% url 'bus_batteries_app:add_bus' %}" method="post">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td>ID</td>
+            <td><input type="number" name="id" /></td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td><input type="text" name="name" /></td>
+        </tr>
+        <tr>
+            <td>Number of batteries</td>
+            <td><input type="number" name="no_of_batteries" /></td>
+        </tr>
+    </table>
+    <input type="reset" />
+    <input type="submit" value="Add bus" />
+</form>

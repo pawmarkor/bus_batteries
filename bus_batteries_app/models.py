@@ -10,7 +10,7 @@ class Bus(models.Model):
 
 
 class Battery(models.Model):
-    db_id = models.BigIntegerField(primary_key=True)
+    db_id = models.BigAutoField(primary_key=True)
     id = models.BigIntegerField()
     number = models.BigIntegerField()
     active = models.BooleanField()
