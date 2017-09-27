@@ -1,0 +1,16 @@
+<table>
+    <tr>
+        <th>Bus id</th>
+        <th>Bus name</th>
+        <th>No of active batteries</th>
+        <th>No of all batteries</th>
+    </tr>
+    {% for bus in buses %}
+        <tr>
+            <td>{{ bus.id }}</td>
+            <td>{{ bus.name }}</td>
+            <td>{{ bus.no_of_active_batteries }}</td>
+            <td>{{ bus.no_of_all_batteries }}</td>
+        </tr>
+    {% endfor %}
+</table>
