@@ -1,17 +1,33 @@
-<a href="{% url 'bus_batteries_app:add_bus' %}">Add bus</a>
-<table>
-    <tr>
-        <th>Bus id</th>
-        <th>Bus name</th>
-        <th>No of active batteries</th>
-        <th>No of all batteries</th>
-    </tr>
-    {% for bus in buses %}
-        <tr>
-            <td><a href="{%  url 'bus_batteries_app:edit_bus' bus.id %}">{{ bus.id }}</a></td>
-            <td>{{ bus.name }}</td>
-            <td>{{ bus.no_of_active_batteries }}</td>
-            <td>{{ bus.no_of_all_batteries }}</td>
-        </tr>
-    {% endfor %}
-</table>
+{% extends "base.html" %}
+
+{% block title %}All buses{% endblock %}
+
+{% block header %}All buses{% endblock %}
+
+{% block content %}
+    <p>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Bus id</th>
+                    <th>Bus name</th>
+                    <th>No of active batteries</th>
+                    <th>No of all batteries</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bus in buses %}
+                    <tr>
+                        <td><a href="{%  url 'bus_batteries_app:edit_bus' bus.id %}">{{ bus.id }}</a></td>
+                        <td>{{ bus.name }}</td>
+                        <td>{{ bus.no_of_active_batteries }}</td>
+                        <td>{{ bus.no_of_all_batteries }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </p>
+    <p>
+        <a href="{% url 'bus_batteries_app:add_bus' %}">Add bus</a>
+    </p>
+{% endblock %}

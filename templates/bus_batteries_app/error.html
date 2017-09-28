@@ -1,2 +1,9 @@
-{{ message }}<br />
-<a href="{% url 'bus_batteries_app:index' %}">Go to list of buses</a>
+{% extends "base.html" %}
+
+{% block title %}Error{% endblock %}
+
+{% block header %}Error{% endblock %}
+
+{% block content %}
+    <p>{{ message }}</p>
+{% endblock %}
