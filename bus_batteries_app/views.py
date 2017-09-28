@@ -50,8 +50,10 @@ def add_bus(request):
         id = request.POST['id']
         name = request.POST['name']
         no_of_batteries = int(request.POST['no_of_batteries'])
-        bus = Bus(id=id, name=name)
         try:
+            if Bus.objects.filter(id=id).exists():
+                raise Exception('Bus with id={} already exists'.format(id))
+            bus = Bus(id=id, name=name)
             bulk_create_batteries(bus, no_of_batteries)
             bus.save()
         except Exception as e:
