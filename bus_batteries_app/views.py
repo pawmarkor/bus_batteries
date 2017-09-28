@@ -19,7 +19,7 @@ BusWithBatteries = namedtuple(
 
 
 def index(request):
-    buses = Bus.objects.all()
+    buses = Bus.objects.order_by('id').all()
     buses_with_batteries = [
         BusWithBatteriesSummary(
             bus.id,
@@ -85,7 +85,7 @@ def edit_bus(request, bus_id):
     elif request.method == 'GET':
         context = {
             'n': n,
-            'bus': BusWithBatteries(bus.id, bus.name, bus.battery_set.all()),
+            'bus': BusWithBatteries(bus.id, bus.name, bus.battery_set.order_by('number').all()),
         }
         return render(request, 'bus_batteries_app/edit_bus.html', context)
     else:
