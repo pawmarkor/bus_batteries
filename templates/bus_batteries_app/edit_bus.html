@@ -47,7 +47,7 @@
                 {%  endfor %}
             </table>
         </p>
-        <p>Add <input type="number" value="0" name="no_of_batteries_to_be_added" /> batteries. <br /></p>
+        <p>Add <input type="number" value="0" name="no_of_batteries_to_be_added" min="0" max="{{ n }}"/> batteries. <br /></p>
         <p>
             <input type="reset" />
             <input type="submit" value="Save" />

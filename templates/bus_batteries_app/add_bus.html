@@ -18,8 +18,8 @@
                     <td><input type="text" name="name" /></td>
                 </tr>
                 <tr>
-                    <td>Number of batteries</td>
-                    <td><input type="number" name="no_of_batteries" /></td>
+                    <td>Number of batteries (0-{{ n }})</td>
+                    <td><input type="number" name="no_of_batteries" min="0" max="{{ n }}"/></td>
                 </tr>
             </tbody>
         </table>

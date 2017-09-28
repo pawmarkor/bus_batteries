@@ -46,7 +46,7 @@ def add_bus(request):
         bus.save()
         return HttpResponseRedirect(reverse('bus_batteries_app:index'))
     elif request.method == 'GET':
-        return render(request, 'bus_batteries_app/add_bus.html')
+        return render(request, 'bus_batteries_app/add_bus.html', {'n': n})
     else:
         raise Http404('Unsupported HTTP method')
 
@@ -79,6 +79,7 @@ def edit_bus(request, bus_id):
         return HttpResponseRedirect(reverse('bus_batteries_app:index'))
     elif request.method == 'GET':
         context = {
+            'n': n,
             'id': bus.id,
             'name': bus.name,
             'batteries': bus.battery_set.all(),
