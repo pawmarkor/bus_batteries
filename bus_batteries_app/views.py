@@ -97,7 +97,7 @@ def bulk_create_batteries(bus, no_of_batteries_to_be_added,
     new_batteries = [
         Battery(
             bus_id=bus.id,
-            number=battery_no + 1,
+            number=battery_no,
             active=True,
         )
         for battery_no in range(
