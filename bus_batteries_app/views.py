@@ -1,6 +1,8 @@
 from collections import namedtuple
 
+from django.db import transaction
 from django.contrib import messages
+from django.db.models import F
 from django.shortcuts import (
     redirect,
     render,
@@ -62,6 +64,7 @@ def add_bus(request):
             )
             bus = Bus(id=_id, name=name)
             bulk_create_batteries(bus, no_of_batteries)
+            bus.next_battery_number = no_of_batteries + 1
             bus.save()
         except Exception as e:
             messages.error(request, 'Error while adding a bus: {}'.format(e))
@@ -94,14 +97,16 @@ def edit_bus(request, bus_id):
                 no_of_batteries_to_be_added=no_of_batteries_to_be_added,
                 no_of_batteries_to_be_removed=len(batteries_to_be_removed),
             )
-            for battery in bus.battery_set.all():
-                if battery.id in batteries_to_be_removed:
-                    battery.delete()
-                else:
-                    battery.active = request.POST.get('battery_{}_active'.format(battery.id)) is not None
-                    battery.save()
-            bulk_create_batteries(bus, no_of_batteries_to_be_added)
-            bus.save()
+            with transaction.atomic():
+                for battery in bus.battery_set.all():
+                    if battery.id in batteries_to_be_removed:
+                        battery.delete()
+                    else:
+                        battery.active = request.POST.get('battery_{}_active'.format(battery.id)) is not None
+                        battery.save()
+                bulk_create_batteries(bus, no_of_batteries_to_be_added)
+                bus.next_battery_number = F('next_battery_number') + no_of_batteries_to_be_added
+                bus.save()
         except Exception as e:
             messages.error(request, 'Error while editing a bus of id={}: {}'.format(bus_id, e))
         else:
@@ -131,4 +136,3 @@ def bulk_create_batteries(bus, no_of_batteries_to_be_added):
         )
     ]
     bus.battery_set.bulk_create(new_batteries)
-    bus.next_battery_number += no_of_batteries_to_be_added
