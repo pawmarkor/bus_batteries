@@ -28,7 +28,7 @@ BusWithBatteries = namedtuple(
 )
 
 
-def index(request, alert=None):
+def index(request):
     buses = Bus.objects.order_by('id').all()
     buses_with_batteries = [
         BusWithBatteriesSummary(
@@ -40,7 +40,6 @@ def index(request, alert=None):
         for bus in buses
     ]
     context = {
-        'alert': alert,
         'buses': buses_with_batteries,
     }
     return render(request, 'bus_batteries_app/index.html', context)
