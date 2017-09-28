@@ -1,11 +1,17 @@
 from collections import namedtuple
 
+from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
 
 from .models import Battery, Bus
 from .const import n
+
+Alert = namedtuple(
+    'Alert',
+    ['type', 'message']
+)
 
 BusWithBatteriesSummary = namedtuple(
     'BusWithBatteriesSummary',
@@ -18,7 +24,7 @@ BusWithBatteries = namedtuple(
 )
 
 
-def index(request):
+def index(request, alert=None):
     buses = Bus.objects.order_by('id').all()
     buses_with_batteries = [
         BusWithBatteriesSummary(
@@ -30,6 +36,7 @@ def index(request):
         for bus in buses
     ]
     context = {
+        'alert': alert,
         'buses': buses_with_batteries,
     }
     return render(request, 'bus_batteries_app/index.html', context)
@@ -43,12 +50,11 @@ def add_bus(request):
         bus = Bus(id=id, name=name)
         try:
             bulk_create_batteries(bus, no_of_batteries)
+            bus.save()
         except Exception as e:
-            context = {
-                'message': str(e),
-            }
-            return render(request, 'bus_batteries_app/error.html', context)
-        bus.save()
+            messages.error(request, 'Error while adding a bus: {}'.format(e))
+        else:
+            messages.success(request, 'Bus of id={} added successfully'.format(bus.id))
         return HttpResponseRedirect(reverse('bus_batteries_app:index'))
     elif request.method == 'GET':
         return render(request, 'bus_batteries_app/add_bus.html', {'n': n})
@@ -69,18 +75,17 @@ def edit_bus(request, bus_id):
                 no_of_batteries_to_be_added=int(request.POST['no_of_batteries_to_be_added']),
                 no_of_batteries_to_be_removed=len(batteries_to_be_removed),
             )
+            for battery in bus.battery_set.all():
+                if battery.id in batteries_to_be_removed:
+                    battery.delete()
+                elif battery.id not in new_battery_ids:
+                    battery.active = request.POST.get('battery_{}_active'.format(battery.id)) is not None
+                    battery.save()
+            bus.save()
         except Exception as e:
-            context = {
-                'message': str(e),
-            }
-            return render(request, 'bus_batteries_app/error.html', context)
-        for battery in bus.battery_set.all():
-            if battery.id in batteries_to_be_removed:
-                battery.delete()
-            elif battery.id not in new_battery_ids:
-                battery.active = request.POST.get('battery_{}_active'.format(battery.id)) is not None
-                battery.save()
-        bus.save()
+            messages.error(request, 'Error while editing a bus of id={}: {}'.format(bus_id, e))
+        else:
+            messages.success(request, 'Bus of id={} edited successfully'.format(bus_id))
         return HttpResponseRedirect(reverse('bus_batteries_app:index'))
     elif request.method == 'GET':
         context = {
