@@ -11,15 +11,15 @@
             <tbody>
                 <tr>
                     <td>ID</td>
-                    <td><input type="number" name="id" /></td>
+                    <td><input type="number" name="id" required/></td>
                 </tr>
                 <tr>
                     <td>Name</td>
-                    <td><input type="text" name="name" /></td>
+                    <td><input type="text" name="name" required/></td>
                 </tr>
                 <tr>
                     <td>Number of batteries (0-{{ n }})</td>
-                    <td><input type="number" name="no_of_batteries" min="0" max="{{ n }}"/></td>
+                    <td><input type="number" name="no_of_batteries" min="0" max="{{ n }}" required/></td>
                 </tr>
             </tbody>
         </table>
