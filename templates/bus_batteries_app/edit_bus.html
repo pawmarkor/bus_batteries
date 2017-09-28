@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Edit the bus (id={{ id }}){% endblock %}
+{% block title %}Edit the bus (id={{ bus.id }}){% endblock %}
 
-{% block header %}Edit the bus (id={{ id }}){% endblock %}
+{% block header %}Edit the bus (id={{ bus.id }}){% endblock %}
 
 {% block content %}
-    <form action="{% url 'bus_batteries_app:edit_bus' id %}" method="post">
+    <form action="{% url 'bus_batteries_app:edit_bus' bus.id %}" method="post">
         {% csrf_token %}
         <p>
             <table class="table">
                 <caption>Bus info</caption>
                 <tr>
                     <td>ID</td>
-                    <td>{{ id }}</td>
+                    <td>{{ bus.id }}</td>
                 </tr>
                 <tr>
                     <td>Name</td>
-                    <td><input type="text" name="name" value="{{ name }}"/></td>
+                    <td><input type="text" name="name" value="{{ bus.name }}"/></td>
                 </tr>
             </table>
         </p>
@@ -29,7 +29,7 @@
                     <th>Active</th>
                     <th>Remove</th>
                 </tr>
-                {%  for battery in batteries %}
+                {%  for battery in bus.batteries %}
                     <tr>
                         <td>{{ battery.id }}</td>
                         <td>{{ battery.number }}</td>

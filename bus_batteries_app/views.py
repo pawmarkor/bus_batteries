@@ -7,16 +7,21 @@ from django.shortcuts import render, get_object_or_404
 from .models import Battery, Bus
 from .const import n
 
-BusWithBatteriesData = namedtuple(
-    'BusWithBatteriesData',
+BusWithBatteriesSummary = namedtuple(
+    'BusWithBatteriesSummary',
     ['id', 'name', 'no_of_all_batteries', 'no_of_active_batteries']
+)
+
+BusWithBatteries = namedtuple(
+    'BusWithBatteries',
+    ['id', 'name', 'batteries']
 )
 
 
 def index(request):
     buses = Bus.objects.all()
     buses_with_batteries = [
-        BusWithBatteriesData(
+        BusWithBatteriesSummary(
             bus.id,
             bus.name,
             no_of_all_batteries=bus.battery_set.count(),
@@ -80,9 +85,7 @@ def edit_bus(request, bus_id):
     elif request.method == 'GET':
         context = {
             'n': n,
-            'id': bus.id,
-            'name': bus.name,
-            'batteries': bus.battery_set.all(),
+            'bus': BusWithBatteries(bus.id, bus.name, bus.battery_set.all()),
         }
         return render(request, 'bus_batteries_app/edit_bus.html', context)
     else:
@@ -94,7 +97,7 @@ def bulk_create_batteries(bus, no_of_batteries_to_be_added,
     if (bus.battery_set.count()
             + no_of_batteries_to_be_added
             - no_of_batteries_to_be_removed) > n:
-        raise Exception('The number of baterries cannot be higher then {}'.format(n))
+        raise Exception('The number of batteries cannot be higher then {}'.format(n))
     new_batteries = [
         Battery(
             bus_id=bus.id,
