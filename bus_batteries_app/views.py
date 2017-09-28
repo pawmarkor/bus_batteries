@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from django.contrib import messages
-from django.http import Http404
+from django.http.response import HttpResponseBadRequest
 from django.shortcuts import (
     redirect,
     render,
@@ -62,7 +62,7 @@ def add_bus(request):
     elif request.method == 'GET':
         return render(request, 'bus_batteries_app/add_bus.html', {'n': n})
     else:
-        raise Http404('Unsupported HTTP method')
+        return HttpResponseBadRequest('Unsupported HTTP method')
 
 
 def edit_bus(request, bus_id):
@@ -97,7 +97,7 @@ def edit_bus(request, bus_id):
         }
         return render(request, 'bus_batteries_app/edit_bus.html', context)
     else:
-        raise Http404('Unsupported HTTP method')
+        return HttpResponseBadRequest('Unsupported HTTP method')
 
 
 def bulk_create_batteries(bus, no_of_batteries_to_be_added,
