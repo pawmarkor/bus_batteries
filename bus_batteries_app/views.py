@@ -55,6 +55,11 @@ def add_bus(request):
         try:
             if Bus.objects.filter(id=_id).exists():
                 raise Exception('Bus with id={} already exists'.format(_id))
+            check_number_of_batteries(
+                current_no_of_batteries=0,
+                no_of_batteries_to_be_added=no_of_batteries,
+                no_of_batteries_to_be_removed=0,
+            )
             bus = Bus(id=_id, name=name)
             bulk_create_batteries(bus, no_of_batteries)
             bus.save()
@@ -68,7 +73,8 @@ def add_bus(request):
 def edit_bus(request, bus_id):
     bus = get_object_or_404(Bus, pk=bus_id)
     try:
-        bus_name = request.POST['name']
+        bus.name = request.POST['name']
+        no_of_batteries_to_be_added = int(request.POST['no_of_batteries_to_be_added'])
         batteries_to_be_removed = set(
             int(_id) for _id in request.POST.getlist('batteries_to_be_removed')
         )
@@ -78,34 +84,41 @@ def edit_bus(request, bus_id):
             'bus': BusWithBatteries(bus.id, bus.name, bus.battery_set.order_by('number').all()),
         }
         return render(request, 'bus_batteries_app/edit_bus.html', context)
+    except TypeError:
+        messages.error(request, 'Number of batteries to be added and '
+                                'battery ids to be removed must be integers')
     else:
-        bus.name = bus_name
         try:
-            new_battery_ids = bulk_create_batteries(
-                bus,
-                no_of_batteries_to_be_added=int(request.POST['no_of_batteries_to_be_added']),
+            check_number_of_batteries(
+                current_no_of_batteries=bus.battery_set.count(),
+                no_of_batteries_to_be_added=no_of_batteries_to_be_added,
                 no_of_batteries_to_be_removed=len(batteries_to_be_removed),
             )
             for battery in bus.battery_set.all():
                 if battery.id in batteries_to_be_removed:
                     battery.delete()
-                elif battery.id not in new_battery_ids:
+                else:
                     battery.active = request.POST.get('battery_{}_active'.format(battery.id)) is not None
                     battery.save()
+            bulk_create_batteries(bus, no_of_batteries_to_be_added)
             bus.save()
         except Exception as e:
             messages.error(request, 'Error while editing a bus of id={}: {}'.format(bus_id, e))
         else:
             messages.success(request, 'Bus of id={} edited successfully'.format(bus_id))
-        return redirect('bus_batteries_app:index')
+    return redirect('bus_batteries_app:index')
 
 
-def bulk_create_batteries(bus, no_of_batteries_to_be_added,
-                          no_of_batteries_to_be_removed=0):
-    if (bus.battery_set.count()
+def check_number_of_batteries(current_no_of_batteries,
+                              no_of_batteries_to_be_added,
+                              no_of_batteries_to_be_removed):
+    if (current_no_of_batteries
             + no_of_batteries_to_be_added
             - no_of_batteries_to_be_removed) > n:
         raise Exception('The number of batteries cannot be higher then {}'.format(n))
+
+
+def bulk_create_batteries(bus, no_of_batteries_to_be_added):
     new_batteries = [
         Battery(
             bus_id=bus.id,
@@ -119,4 +132,3 @@ def bulk_create_batteries(bus, no_of_batteries_to_be_added,
     ]
     bus.battery_set.bulk_create(new_batteries)
     bus.next_battery_number += no_of_batteries_to_be_added
-    return set(battery.id for battery in new_batteries)
