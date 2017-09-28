@@ -1,9 +1,12 @@
 from collections import namedtuple
 
 from django.contrib import messages
-from django.http import HttpResponseRedirect, Http404
-from django.urls import reverse
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+from django.shortcuts import (
+    redirect,
+    render,
+    get_object_or_404,
+)
 
 from .models import Battery, Bus
 from .const import n
@@ -55,7 +58,7 @@ def add_bus(request):
             messages.error(request, 'Error while adding a bus: {}'.format(e))
         else:
             messages.success(request, 'Bus of id={} added successfully'.format(bus.id))
-        return HttpResponseRedirect(reverse('bus_batteries_app:index'))
+        return redirect('bus_batteries_app:index')
     elif request.method == 'GET':
         return render(request, 'bus_batteries_app/add_bus.html', {'n': n})
     else:
@@ -86,7 +89,7 @@ def edit_bus(request, bus_id):
             messages.error(request, 'Error while editing a bus of id={}: {}'.format(bus_id, e))
         else:
             messages.success(request, 'Bus of id={} edited successfully'.format(bus_id))
-        return HttpResponseRedirect(reverse('bus_batteries_app:index'))
+        return redirect('bus_batteries_app:index')
     elif request.method == 'GET':
         context = {
             'n': n,
