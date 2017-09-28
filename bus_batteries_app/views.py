@@ -1,7 +1,6 @@
 from collections import namedtuple
 
 from django.contrib import messages
-from django.http.response import HttpResponseBadRequest
 from django.shortcuts import (
     redirect,
     render,
@@ -46,14 +45,17 @@ def index(request, alert=None):
 
 
 def add_bus(request):
-    if request.method == 'POST':
-        id = request.POST['id']
+    try:
+        _id = request.POST['id']
         name = request.POST['name']
         no_of_batteries = int(request.POST['no_of_batteries'])
+    except KeyError:
+        return render(request, 'bus_batteries_app/add_bus.html', {'n': n})
+    else:
         try:
-            if Bus.objects.filter(id=id).exists():
-                raise Exception('Bus with id={} already exists'.format(id))
-            bus = Bus(id=id, name=name)
+            if Bus.objects.filter(id=_id).exists():
+                raise Exception('Bus with id={} already exists'.format(_id))
+            bus = Bus(id=_id, name=name)
             bulk_create_batteries(bus, no_of_batteries)
             bus.save()
         except Exception as e:
@@ -61,19 +63,23 @@ def add_bus(request):
         else:
             messages.success(request, 'Bus of id={} added successfully'.format(bus.id))
         return redirect('bus_batteries_app:index')
-    elif request.method == 'GET':
-        return render(request, 'bus_batteries_app/add_bus.html', {'n': n})
-    else:
-        return HttpResponseBadRequest('Unsupported HTTP method')
 
 
 def edit_bus(request, bus_id):
     bus = get_object_or_404(Bus, pk=bus_id)
-    if request.method == 'POST':
-        bus.name = request.POST['name']
+    try:
+        bus_name = request.POST['name']
         batteries_to_be_removed = set(
-            int(id) for id in request.POST.getlist('batteries_to_be_removed')
+            int(_id) for _id in request.POST.getlist('batteries_to_be_removed')
         )
+    except KeyError:
+        context = {
+            'n': n,
+            'bus': BusWithBatteries(bus.id, bus.name, bus.battery_set.order_by('number').all()),
+        }
+        return render(request, 'bus_batteries_app/edit_bus.html', context)
+    else:
+        bus.name = bus_name
         try:
             new_battery_ids = bulk_create_batteries(
                 bus,
@@ -92,14 +98,6 @@ def edit_bus(request, bus_id):
         else:
             messages.success(request, 'Bus of id={} edited successfully'.format(bus_id))
         return redirect('bus_batteries_app:index')
-    elif request.method == 'GET':
-        context = {
-            'n': n,
-            'bus': BusWithBatteries(bus.id, bus.name, bus.battery_set.order_by('number').all()),
-        }
-        return render(request, 'bus_batteries_app/edit_bus.html', context)
-    else:
-        return HttpResponseBadRequest('Unsupported HTTP method')
 
 
 def bulk_create_batteries(bus, no_of_batteries_to_be_added,
