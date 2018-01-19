@@ -34,4 +34,4 @@ In the current state the project is missing:
 * logging
 * tests
 
-In case the project would run in production migrating into another database (e.x. PostgreSQL) is recommended.
+In case the project would run in production migrating into another database (e.g. PostgreSQL) is recommended.
